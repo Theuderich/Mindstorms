@@ -9,26 +9,31 @@ import java.net.Socket;
 
 import javax.sound.sampled.Port;
 
+import connection.RDAServer;
 import lejos.hardware.Button;
 import lejos.hardware.motor.Motor;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.SensorMode;
 import lejos.utility.Delay;
+import rda.basics.RDAHandler;
 
 //jrun -jar HelloWorld.jar
 
 public class HelloWorld {
 
 	
-	private static EV3ColorSensor colorSensor;
+    static int mPort = 10002;
+    private static EV3ColorSensor colorSensor;
 
 	
 	public static void main(String[] args) throws IOException {
-	    String clientSentence;
-	    String capitalizedSentence;
-	    ServerSocket welcomeSocket = new ServerSocket(6789);
 
+
+	    RDAHandler.getInstance().start();
+	    RDAServer server = new RDAServer( mPort );
+	    server.start();
+		
 		
 		EV3ColorSensor colorSensor = new EV3ColorSensor(SensorPort.S1);
 		final SensorMode colorRGBSensor = colorSensor.getRGBMode();
@@ -47,14 +52,6 @@ public class HelloWorld {
 		System.out.println("Running ...");
 		Delay.msDelay(500);
 		
-//		System.out.println(String.format("Samples: %d", sampleSize));
-//		for(int i=0; i<100; i++)
-//		{
-//			colorRGBSensor.fetchSample(sample, 0);
-//			System.out.println(String.format("Sample 0: %f", sample[0]));
-//			
-//		}
-		
 		System.out.println("Stopping ...");
 		Delay.msDelay(100);
 		Motor.A.stop();
@@ -62,19 +59,6 @@ public class HelloWorld {
 		
 		Delay.msDelay(100);
 		
-	      while(true)
-	         {
-	            Socket connectionSocket = welcomeSocket.accept();
-	            BufferedReader inFromClient =
-	               new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
-	            DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
-	            clientSentence = inFromClient.readLine();
-	            System.out.println("Received: " + clientSentence);
-	            capitalizedSentence = clientSentence.toUpperCase() + '\n';
-	            outToClient.writeBytes(capitalizedSentence);
-	         }
-	  		
-
 	}
 
 }

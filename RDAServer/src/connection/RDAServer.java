@@ -1,15 +1,16 @@
-package con;
+package connection;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class ConListen extends Thread {
 
+public class RDAServer extends Thread {
+	
 	ServerSocket mListenSocket;
 	int mPort;
 	
-	public ConListen(int port)
+	public RDAServer(int port)
 	{
 		mPort = port;
 	}
@@ -30,8 +31,8 @@ public class ConListen extends Thread {
 			try {
 			    System.out.println( "Listening for Clients" );
 				connectionSocket = mListenSocket.accept();
-				Client c;
-				c = new Client(connectionSocket);
+				ClientThread c;
+				c = new ClientThread(connectionSocket);
 				c.start();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

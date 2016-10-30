@@ -1,31 +1,32 @@
-package dap;
+package rda.basics;
 
 import java.util.concurrent.Semaphore;
 
-import con.Client;
+import connection.ClientThread;
 
-public class DAPHandler extends Thread {
+
+public class RDAHandler extends Thread {
 
 
 	/*************************************************************************
 	 * Singleton Implementation
 	 */
-	private static DAPHandler instance;
+	private static RDAHandler instance;
 
-	private DAPHandler () 
+	private RDAHandler () 
 	{
 		setHandlerFree();
 		clearRequestBuffer();
 		clearReplyBuffer();
 	}
 
-	public static synchronized DAPHandler getInstance () 
+	public static synchronized RDAHandler getInstance () 
 	{
-		if (DAPHandler.instance == null) 
+		if (RDAHandler.instance == null) 
 		{
-			DAPHandler.instance = new DAPHandler();
+			RDAHandler.instance = new RDAHandler();
 	    }
-		return DAPHandler.instance;
+		return RDAHandler.instance;
 	}
 	
 	/*************************************************************************
@@ -133,14 +134,14 @@ public class DAPHandler extends Thread {
 	/*************************************************************************
 	 * Definition of Client Lock 
 	 */
-	private Client clientRef;
+	private ClientThread clientRef;
 	
 	private void setHandlerFree()
 	{
 		clientRef = null;
 	}
 
-	private void setHandler( Client thread)
+	private void setHandler( ClientThread thread)
 	{
 		clientRef = thread;
 	}
@@ -153,7 +154,7 @@ public class DAPHandler extends Thread {
 	/*************************************************************************
 	 * API to Client Thread
 	 */
-	public boolean copyRequestData(Client thread, byte[] data, int size)
+	public boolean copyRequestData(ClientThread thread, byte[] data, int size)
 	{
 		boolean success = true;
 		
@@ -230,7 +231,7 @@ public class DAPHandler extends Thread {
 					
 					clearReplyBuffer();
 					System.out.println("Processing is decoding buffer");
-					// Process DAP
+					// Process RDA
 					int packetId = requestBuffer[0];
 					int destinationId = requestBuffer[1];
 					int payloadSize = requestBuffer[2];
@@ -304,5 +305,4 @@ public class DAPHandler extends Thread {
 			}
 		}
 	}
-	  
 }
