@@ -11,14 +11,14 @@ public class TCPServer {
 
 	    System.out.println( "Initialization the Server" );
 
-	    RDAHandler.getInstance().startHandler();
+	    RDAHandler.getInstance().start();
 	    RDAServer server = new RDAServer( mPort );
 	    server.start();
 	    
 	    System.out.println("Press any key to exit ...");
 	    System.in.read();
 	    server.terminate();
-	    RDAHandler.getInstance().stopHandler();
+	    RDAHandler.getInstance().terminate();
 	    
 	}
 

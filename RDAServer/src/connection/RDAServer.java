@@ -38,7 +38,7 @@ public class RDAServer extends Thread {
 	
 	/**
 	 * Method to start the TCP server thread
-	 * implmented in run()
+	 * implemented in run()
 	 */
 	@Override
 	public void start()

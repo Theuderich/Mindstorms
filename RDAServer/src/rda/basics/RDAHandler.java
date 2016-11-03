@@ -16,11 +16,15 @@ public class RDAHandler extends Thread {
 
 	private RDAHandler () 
 	{
-		setHandlerFree();
+		freeClientRef();
 		clearRequestBuffer();
 		clearReplyBuffer();
 	}
 
+	/**
+	 * Constructs and return the singleton object
+	 * @return - the singleton object
+	 */
 	public static synchronized RDAHandler getInstance () 
 	{
 		if (RDAHandler.instance == null) 
@@ -35,18 +39,30 @@ public class RDAHandler extends Thread {
 	 * Thread control
 	 */
 	
+	/**
+	 * boolean variable to signal the run function a termination request
+	 */
 	private volatile boolean running = true;
 	
-	public void startHandler()
+	/**
+	 * Method to start the RDA Handler thread
+	 * implemented in run()
+	 */
+	@Override
+	public void start()
 	{
-		System.out.println("Starting RDA Handler ...");
 		running = true;
 		super.start();
 	}
-	
-	public void stopHandler()
+
+	/**
+	 * Requests the RDA Handler to close the run thread.
+	 * Therefore the termination request is being send over the running variable.
+	 * To wake up the thread a notification signal is being triggered  
+	 */
+	public void terminate()
 	{
-		System.out.println("Stoping RDA Handler ...");
+
 		running = false;
 		synchronized(LOCK){
 			LOCK.notify();
@@ -57,8 +73,16 @@ public class RDAHandler extends Thread {
 	/*************************************************************************
 	 * Concurrency protection
 	 */
+	
+	/**
+	 * Semaphore for protecting the buffer for simultaneous access in different threads
+	 */
 	private Semaphore mutex = new Semaphore(1);
 	
+	/**
+	 * request a lock of the buffer access
+	 * @return Return false if lock was not successful
+	 */
 	private boolean lock()
 	{
 		boolean success = false;
@@ -72,6 +96,9 @@ public class RDAHandler extends Thread {
 		return success;
 	}
 
+	/**
+	 * release the lock of buffer access
+	 */
 	private void release()
 	{
 		mutex.release();
@@ -80,32 +107,45 @@ public class RDAHandler extends Thread {
 	/*************************************************************************
 	 * Definition of Request Buffer
 	 */
+	
+	/**
+	 * Defining the RDA Protocol
+	 */
 	private static final int maxAppSizeBytes = 512;
 	private static final int headerWords = 3;
 	private static final int maxOverheadWords = headerWords + 1;
-	public static final int maxRequestBufferSizeWords = (maxOverheadWords + maxAppSizeBytes)/2;
+	public static final int maxRequestBufferSizeBytes = (maxOverheadWords + maxAppSizeBytes);
+	public static final int maxRequestBufferSizeWords = (maxRequestBufferSizeBytes/2);
+	
+	/**
+	 * Allocating request and reply buffers
+	 */
 	private int[] requestBuffer = new int[maxRequestBufferSizeWords];
 	private int bufferSize;
 	private int[] replyBuffer = new int[maxRequestBufferSizeWords];
 	private int replyBUfferSize;
 	
+	/**
+	 * clears the request buffer and its size variable
+	 */
 	private void clearRequestBuffer()
 	{
 		for(int i=0; i<maxRequestBufferSizeWords; i++)
 			requestBuffer[i] = 0;
 		bufferSize = 0;
 	}
-	
+
+	/**
+	 * Check if the request buffer contains a complete RDA package. 
+	 * @return True if request is complete.
+	 */
 	private boolean isRequestComplete()
 	{
-		boolean status = true;
+		boolean complete = true;
 		
-		if( bufferSize == 0 )
-		{
-			status = false;
-		}
+		complete = (bufferSize != 0);
 		
-		if( status )
+		if( complete )
 		{
 			int checksum = 0;
 			for( int i=0; i<(bufferSize-1); i++)
@@ -115,17 +155,24 @@ public class RDAHandler extends Thread {
 
 			if( requestBuffer[bufferSize-1] != (checksum & 0xFFFF) )
 			{
-				status = false;
+				complete = false;
 			}
 
-			System.out.println(String.format("Checksum %d: %04X == %04X is %b", bufferSize-1, requestBuffer[bufferSize-1]&0xFFFF, checksum&0xFFFF, status));
 		}
 		
-		return status;
+		return complete;
 	}
 
+	/**
+	 * Copies the provided data into the local request buffer.
+	 * Transfers the byte oriented transfer order into word (U16) order
+	 * @param data Pointer to the byte data buffer
+	 * @param size Number of bytes received
+	 */
 	private void copyToBuffer( byte[] data, int size )
 	{
+		// TODO what happens if the amount of data are not even
+		
 		for(int i=0; i<size/2; i++)
 		{
 			requestBuffer[i] = (data[i*2] << 8) & 0xFF00;
@@ -133,11 +180,11 @@ public class RDAHandler extends Thread {
 		}
 		bufferSize = size/2;
 		
-		for(int i=0; i<size/2; i++)
-			System.out.println(String.format("%02d: %04X", i, requestBuffer[i]));
-		
 	}
-	
+
+	/**
+	 * Clears the reply buffer and its size variable
+	 */
 	private void clearReplyBuffer()
 	{
 		for(int i=0; i<maxRequestBufferSizeWords; i++)
@@ -145,8 +192,14 @@ public class RDAHandler extends Thread {
 		replyBUfferSize = 0;
 	}
 	
+	/**
+	 * Appends the RDA checksum at the end of the prepared reply data
+	 * Incrreases the buffer size variable by one
+	 */
 	private void attachReplyChecksum()
 	{
+		// TODO protect out of bound access if buffer is already full
+		
 		int checksum = 0;
 		for( int i=0; i<(replyBUfferSize); i++)
 		{
@@ -159,25 +212,49 @@ public class RDAHandler extends Thread {
 	/*************************************************************************
 	 * Definition of Client Lock 
 	 */
+	
+	/**
+	 * Reference to the client thread which request is currently processed.
+	 */
 	private ClientThread clientRef;
 	
-	private void setHandlerFree()
+	/**
+	 * Clears the client reference.
+	 */
+	private void freeClientRef()
 	{
 		clientRef = null;
 	}
 
-	private void setHandler( ClientThread thread)
+	/**
+	 * Stores the reference to the client thread which request should be processed
+	 * @param thread Client thread reference
+	 */
+	private void setClientRef( ClientThread thread)
 	{
 		clientRef = thread;
 	}
 
-	public boolean isHanlderFree()
+	/**
+	 * Boolean check for the client thread if the RDA Handler is currently processing any request.
+	 * The concurrency issue is so far being handled together with the buffer access lock.
+	 * @return True if no request processing is in progress.
+	 */
+	private boolean isHanlderFree()
 	{
 		return clientRef==null;
 	}
 	
 	/*************************************************************************
 	 * API to Client Thread
+	 */
+	
+	/**
+	 * Interface function to the client thread for copying the request data into the RDA Handler
+	 * @param thread Client thread reference
+	 * @param data Request buffer reference
+	 * @param size Received bytes
+	 * @return True if request data are being accepted. False if handler is busy.
 	 */
 	public boolean copyRequestData(ClientThread thread, byte[] data, int size)
 	{
@@ -207,7 +284,7 @@ public class RDAHandler extends Thread {
 		if( success )
 		{
 			System.out.println("Handler got Data");
-			setHandler( thread );
+			setClientRef( thread );
 			copyToBuffer( data, size );
 		}
 		
@@ -231,6 +308,11 @@ public class RDAHandler extends Thread {
 	}
 	
 	  
+	/**
+	 * Thread function of the handler which processes the complete received request.
+	 * Prepares the reply message in the local reply buffer.
+	 * Transfers the generated reply into the client thread context and send them out to the socket.
+	 */
 	public void run()
 	{
 		while(running)
@@ -326,7 +408,7 @@ public class RDAHandler extends Thread {
 				
 				// processing done
 				System.out.println("Processing is done");
-				setHandlerFree();
+				freeClientRef();
 				clearRequestBuffer();
 				
 				release();	
