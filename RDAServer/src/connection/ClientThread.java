@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import rda.basics.RDABuffer;
 import rda.basics.RDAHandler;
 
 
@@ -41,19 +42,16 @@ public class ClientThread extends Thread {
 	/**************************************************************************
      * read and reply buffer allocated individually for each client instance
      */
-    private byte[] requestBuffer = new byte[RDAHandler.maxRequestBufferSizeWords*2];
-    private int requestSize;
-    private byte[] replyBuffer = new byte[RDAHandler.maxRequestBufferSizeWords*2];
-    private int replySize;
-
+	public RDABuffer request = new RDABuffer();
+	public RDABuffer reply = new RDABuffer();
+	
+	
     /**
      * Sets the whole request buffer content to 0 and resets the buffer size variable 
      */
 	private void clearRequestBuffer()
 	{
-		for(int i=0; i<RDAHandler.maxRequestBufferSizeWords*2; i++)
-			requestBuffer[i] = 0;
-		requestSize = 0;
+		request.clear();
 	}
 	
     /**
@@ -61,9 +59,7 @@ public class ClientThread extends Thread {
      */
 	private void clearReplyBuffer()
 	{
-		for(int i=0; i<RDAHandler.maxRequestBufferSizeWords*2; i++)
-			replyBuffer[i] = 0;
-		replySize = 0;
+		reply.clear();		
 	}
 
 	/**************************************************************************
@@ -72,27 +68,18 @@ public class ClientThread extends Thread {
 	
 	/**
 	 * In this function the generated reply from the RDA Handler is being send to the client.
-	 * First this function copies the reply data into an own reply buffer.
-	 * 
-	 * 
 	 * @param data - pointer to the reply data buffer from the handler in words (U16)
 	 * @param size - number of replay data word (U16)
 	 */
-	public void sendReply( int[] data, int size)
+	public void sendReply()
 	{
-		clearReplyBuffer();
-		
-		// convert the word (U16) buffer from the handler into byte oriented buffer
-		for(int i=0; i<size; i++)
-		{
-			replyBuffer[i*2] = (byte) (( data[i] >> 8 ) & 0xFF);
-			replyBuffer[i*2+1] = (byte) (( data[i] ) & 0xFF);
-		}
-		replySize = size*2;
-
 		// transmit the reply buffer to the client
+		
+		for(int i=0; i<reply.size; i++)
+			System.out.println(String.format("Byte: 0x%02X", reply.buffer[i]));
+		
 		try {
-			mBufferedOutputStream.write(replyBuffer, 0, replySize);
+			mBufferedOutputStream.write(reply.buffer, 0, reply.size);
 			mBufferedOutputStream.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -117,10 +104,10 @@ public class ClientThread extends Thread {
 			try {
 				
 				// Reading from the socket till data are available.
-				requestSize = mInputStream.read(requestBuffer, 0, RDAHandler.maxRequestBufferSizeWords*2);
+				request.size = mInputStream.read(request.buffer, 0, request.max);
 				
 				// If data are read from the socket successfully.
-				if( requestSize > 0 )
+				if( request.size > 0 )
 				{
 					// Prepare to allocate the RDA Handler.
 					// In cases of status is false, the RDA Handler is busy.
@@ -129,7 +116,7 @@ public class ClientThread extends Thread {
 					{
 						
 						// Request the RDA Handler to take over the received request data.
-						status = RDAHandler.getInstance().copyRequestData(this, requestBuffer, requestSize);
+						status = RDAHandler.getInstance().allocateHandler( this );
 						
 						// In cases the RDA Handler is busy, wait some time. 
 						if( status == false )

@@ -17,8 +17,6 @@ public class RDAHandler extends Thread {
 	private RDAHandler () 
 	{
 		freeClientRef();
-		clearRequestBuffer();
-		clearReplyBuffer();
 	}
 
 	/**
@@ -117,98 +115,6 @@ public class RDAHandler extends Thread {
 	public static final int maxRequestBufferSizeBytes = (maxOverheadWords + maxAppSizeBytes);
 	public static final int maxRequestBufferSizeWords = (maxRequestBufferSizeBytes/2);
 	
-	/**
-	 * Allocating request and reply buffers
-	 */
-	private int[] requestBuffer = new int[maxRequestBufferSizeWords];
-	private int bufferSize;
-	private int[] replyBuffer = new int[maxRequestBufferSizeWords];
-	private int replyBUfferSize;
-	
-	/**
-	 * clears the request buffer and its size variable
-	 */
-	private void clearRequestBuffer()
-	{
-		for(int i=0; i<maxRequestBufferSizeWords; i++)
-			requestBuffer[i] = 0;
-		bufferSize = 0;
-	}
-
-	/**
-	 * Check if the request buffer contains a complete RDA package. 
-	 * @return True if request is complete.
-	 */
-	private boolean isRequestComplete()
-	{
-		boolean complete = true;
-		
-		complete = (bufferSize != 0);
-		
-		if( complete )
-		{
-			int checksum = 0;
-			for( int i=0; i<(bufferSize-1); i++)
-			{
-				checksum += requestBuffer[i] & 0xFFFF;
-			}
-
-			if( requestBuffer[bufferSize-1] != (checksum & 0xFFFF) )
-			{
-				complete = false;
-			}
-
-		}
-		
-		return complete;
-	}
-
-	/**
-	 * Copies the provided data into the local request buffer.
-	 * Transfers the byte oriented transfer order into word (U16) order
-	 * @param data Pointer to the byte data buffer
-	 * @param size Number of bytes received
-	 */
-	private void copyToBuffer( byte[] data, int size )
-	{
-		// TODO what happens if the amount of data are not even
-		
-		for(int i=0; i<size/2; i++)
-		{
-			requestBuffer[i] = (data[i*2] << 8) & 0xFF00;
-			requestBuffer[i] += data[i*2+1] & 0xFF;
-		}
-		bufferSize = size/2;
-		
-	}
-
-	/**
-	 * Clears the reply buffer and its size variable
-	 */
-	private void clearReplyBuffer()
-	{
-		for(int i=0; i<maxRequestBufferSizeWords; i++)
-			replyBuffer[i] = 0;
-		replyBUfferSize = 0;
-	}
-	
-	/**
-	 * Appends the RDA checksum at the end of the prepared reply data
-	 * Incrreases the buffer size variable by one
-	 */
-	private void attachReplyChecksum()
-	{
-		// TODO protect out of bound access if buffer is already full
-		
-		int checksum = 0;
-		for( int i=0; i<(replyBUfferSize); i++)
-		{
-			checksum += replyBuffer[i] & 0xFFFF;
-		}
-		replyBuffer[replyBUfferSize] = checksum & 0xFFFF;
-		replyBUfferSize++;
-	}
-	
 	/*************************************************************************
 	 * Definition of Client Lock 
 	 */
@@ -256,7 +162,7 @@ public class RDAHandler extends Thread {
 	 * @param size Received bytes
 	 * @return True if request data are being accepted. False if handler is busy.
 	 */
-	public boolean copyRequestData(ClientThread thread, byte[] data, int size)
+	public boolean allocateHandler(ClientThread thread )
 	{
 		boolean success = true;
 		
@@ -275,7 +181,7 @@ public class RDAHandler extends Thread {
 		if( success )
 		{
 			System.out.println("Checking Buffer Ready");
-			if( isRequestComplete() )
+			if( thread.request.isRequestComplete() )
 			{
 				success = false;
 			}
@@ -285,18 +191,14 @@ public class RDAHandler extends Thread {
 		{
 			System.out.println("Handler got Data");
 			setClientRef( thread );
-			copyToBuffer( data, size );
 		}
 		
 		if( success )
 		{
-			if( isRequestComplete() )
-			{
-				// Start Thread
-				System.out.println("Starting Processing");
-				synchronized(LOCK){
-					LOCK.notify();
-				}
+			// Start Thread
+			System.out.println("Starting Processing");
+			synchronized(LOCK){
+				LOCK.notify();
 			}
 		}
 
@@ -335,36 +237,36 @@ public class RDAHandler extends Thread {
 			{
 				
 				System.out.println("Processing is checking buffer");
-				if( isRequestComplete() )
+				if( !isHanlderFree() )
 				{
 					
-					clearReplyBuffer();
+					clientRef.reply.clear();
 					System.out.println("Processing is decoding buffer");
+
 					// Process RDA
-					int packetId = requestBuffer[0];
-					int destinationId = requestBuffer[1];
-					int payloadSize = requestBuffer[2];
+					int packetId = clientRef.request.getWord(0);
+					int destinationId = clientRef.request.getWord(1);
+					int payloadSize = clientRef.request.getWord(2);
 					
-					int messageId = requestBuffer[3];
+					int messageId = clientRef.request.getWord(3);
 					int commandId = ( messageId >> 8 ) & 0xFF;
 					int commandLength = ( messageId ) & 0xFF;
 					
-					replyBuffer[0] = packetId;
-					replyBuffer[1] = destinationId;
-					replyBuffer[2] = payloadSize;
-					replyBuffer[2] = replyBuffer[2] & 0xFE00;
+					clientRef.reply.setWord(0, packetId);
+					clientRef.reply.setWord(1, destinationId);
+					clientRef.reply.setWord(2, payloadSize & 0xFE00);
 					
 					int usedPayload = 0;
 					if( commandId == 1 )
 					{
 						System.out.println("Detect detected.");
 						
-						replyBuffer[3] = 0x0104;
-						replyBuffer[4] = 0x0067;
-						replyBuffer[5] = 0x0000;
-						replyBuffer[6] = 0x0000;
-						replyBuffer[7] = 0x0000;
-	
+						clientRef.reply.setWord(3, 0x0104);
+						clientRef.reply.setWord(4, 0x0067);
+						clientRef.reply.setWord(5, 0x0000);
+						clientRef.reply.setWord(6, 0x0000);
+						clientRef.reply.setWord(7, 0x0000);
+						
 						usedPayload = 5;
 						
 					}
@@ -374,33 +276,32 @@ public class RDAHandler extends Thread {
 						String tmp = "";
 						for( int i=0; i<commandLength; i++ )
 						{
-							tmp += (char)((requestBuffer[4+i] >> 8 ) &0xFF);
-							tmp += (char)((requestBuffer[4+i] ) &0xFF);
+							tmp += (char)((clientRef.request.getWord(4+i) >> 8 ) & 0xFF);
+							tmp += (char)((clientRef.request.getWord(4+i) ) & 0xFF);
 						}
 						System.out.println(tmp);
 						
-						replyBuffer[3] = 0x0201;
-						replyBuffer[4] = 0x0001;
+						clientRef.reply.setWord(3, 0x0201);
+						clientRef.reply.setWord(4, 0x0001);
 						
 						usedPayload = 2;
 					}
 					else if( commandId == 64 )
 					{
-						replyBuffer[3] = ( commandId << 8 ) | 0x2;
-						replyBuffer[4] = 0xDEAD;
-						replyBuffer[5] = 0xBEAF;
+						clientRef.reply.setWord(3, ( commandId << 8 ) | 0x2);
+						clientRef.reply.setWord(4, 0xDEAD);
+						clientRef.reply.setWord(5, 0xBEAF);
 						
 						usedPayload = 3;
 						
 					}
 					
-					replyBuffer[2] += usedPayload;
-					replyBUfferSize = usedPayload+3;
-					attachReplyChecksum();
+					clientRef.reply.setWord(2, (payloadSize & 0xFE00) + usedPayload);
+					clientRef.reply.attachReplyChecksum();
 					
 					if( usedPayload != 0)
 					{
-						clientRef.sendReply(replyBuffer, replyBUfferSize);
+						clientRef.sendReply();
 					}
 	
 				}
@@ -409,8 +310,6 @@ public class RDAHandler extends Thread {
 				// processing done
 				System.out.println("Processing is done");
 				freeClientRef();
-				clearRequestBuffer();
-				
 				release();	
 			}
 		}
