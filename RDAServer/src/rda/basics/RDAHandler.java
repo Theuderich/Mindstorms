@@ -262,7 +262,7 @@ public class RDAHandler extends Thread {
 						System.out.println("Detect detected.");
 						
 						clientRef.reply.setWord(3, 0x0104);
-						clientRef.reply.setWord(4, 0x0067);
+						clientRef.reply.setWord(4, 0x00C7);	//103 = SCP = 0x0067
 						clientRef.reply.setWord(5, 0x0000);
 						clientRef.reply.setWord(6, 0x0000);
 						clientRef.reply.setWord(7, 0x0000);
