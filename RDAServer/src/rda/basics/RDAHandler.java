@@ -171,7 +171,6 @@ public class RDAHandler extends Thread {
 			
 		if( success )
 		{
-			System.out.println("Checking Client Ref");
 			if( !isHanlderFree() )
 			{
 				success = false;
@@ -180,7 +179,6 @@ public class RDAHandler extends Thread {
 		
 		if( success )
 		{
-			System.out.println("Checking Buffer Ready");
 			if( thread.request.isRequestComplete() )
 			{
 				success = false;
@@ -189,21 +187,17 @@ public class RDAHandler extends Thread {
 		
 		if( success )
 		{
-			System.out.println("Handler got Data");
 			setClientRef( thread );
 		}
 		
 		if( success )
 		{
 			// Start Thread
-			System.out.println("Starting Processing");
 			synchronized(LOCK){
 				LOCK.notify();
 			}
 		}
 
-		
-		System.out.println("Handler done");
 		release();		
 		
 		return success;
@@ -221,9 +215,7 @@ public class RDAHandler extends Thread {
 		{
 			try {
 				 synchronized(LOCK){
-					 System.out.println("Handler waiting for data ...");
 					 LOCK.wait();
-					 System.out.println("Handler waiting done");
 				 }
 				 
 			} catch (InterruptedException e) {
@@ -232,16 +224,13 @@ public class RDAHandler extends Thread {
 				running = false;
 			}
 			
-			System.out.println("Processing is running");
 			if( lock() )
 			{
 				
-				System.out.println("Processing is checking buffer");
 				if( !isHanlderFree() )
 				{
 					
 					clientRef.reply.clear();
-					System.out.println("Processing is decoding buffer");
 
 					// Process RDA
 					int packetId = clientRef.request.getWord(0);
@@ -259,8 +248,8 @@ public class RDAHandler extends Thread {
 					int usedPayload = 0;
 					if( commandId == 1 )
 					{
-						System.out.println("Detect detected.");
 						
+						// Detect
 						clientRef.reply.setWord(3, 0x0104);
 						clientRef.reply.setWord(4, 0x00C7);	//103 = SCP = 0x0067
 						clientRef.reply.setWord(5, 0x0000);
@@ -272,7 +261,8 @@ public class RDAHandler extends Thread {
 					}
 					else if( commandId == 2 )
 					{
-						System.out.println("Identify Client detected.");
+						
+						// Identify Client
 						String tmp = "";
 						for( int i=0; i<commandLength; i++ )
 						{
@@ -288,6 +278,7 @@ public class RDAHandler extends Thread {
 					}
 					else if( commandId == 64 )
 					{
+						// Read Item
 						clientRef.reply.setWord(3, ( commandId << 8 ) | 0x2);
 						clientRef.reply.setWord(4, 0xDEAD);
 						clientRef.reply.setWord(5, 0xBEAF);
@@ -308,7 +299,6 @@ public class RDAHandler extends Thread {
 	
 				
 				// processing done
-				System.out.println("Processing is done");
 				freeClientRef();
 				release();	
 			}

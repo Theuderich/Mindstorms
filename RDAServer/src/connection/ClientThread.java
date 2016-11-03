@@ -74,10 +74,6 @@ public class ClientThread extends Thread {
 	public void sendReply()
 	{
 		// transmit the reply buffer to the client
-		
-		for(int i=0; i<reply.size; i++)
-			System.out.println(String.format("Byte: 0x%02X", reply.buffer[i]));
-		
 		try {
 			mBufferedOutputStream.write(reply.buffer, 0, reply.size);
 			mBufferedOutputStream.flush();
