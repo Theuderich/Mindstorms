@@ -58,7 +58,8 @@ public class RDAServer extends Thread {
 				c.start();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				if(running)
+					e.printStackTrace();
 				return;
 			}
 

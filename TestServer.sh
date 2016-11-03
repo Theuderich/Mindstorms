@@ -1,0 +1,1 @@
+java -cp TestTcpServer/bin:RDAServer/bin TCPServer
