@@ -6,18 +6,42 @@ import java.net.Socket;
 
 
 public class RDAServer extends Thread {
-	
-	ServerSocket mListenSocket;
-	int mPort;
-	
+
+	/*************************************************************************
+	 * Instance Variables
+	 */
+
+	private ServerSocket mListenSocket;
+	private int mPort;
+
+	/*************************************************************************
+	 * Construction of server instance
+	 */
+
+	/**
+	 * Constructor
+	 * @param port - port number of listening socket
+	 */
 	public RDAServer(int port)
 	{
 		mPort = port;
 	}
 
+	/*************************************************************************
+	 * Thread control
+	 */
+
+	/**
+	 * boolean variable to signal the run function a termination request
+	 */
 	private volatile boolean running = true;
 	
-	public void startServer()
+	/**
+	 * Method to start the TCP server thread
+	 * implmented in run()
+	 */
+	@Override
+	public void start()
 	{
 		try {
 			mListenSocket = new ServerSocket(mPort);
@@ -27,16 +51,20 @@ public class RDAServer extends Thread {
 			return;
 		}
 		
-		
-		System.out.println("Starting RDA Server");
 		running = true;
 		super.start();
 	}
 	
-	public void stopServer()
+	/**
+	 * Request the TCP Server thread to terminate.
+	 * The listening socked is being closed which raises an exception
+	 * In cases where the running variable is set to false this exception will not be processed 
+	 */
+	public void terminate()
 	{
-		System.out.println("Stoping RDA Server");
+
 		running = false;
+		
 		try {
 			mListenSocket.close();
 		} catch (IOException e) {
@@ -45,21 +73,37 @@ public class RDAServer extends Thread {
 		}
 	}
 	
+	/*************************************************************************
+	 * Thread function
+	 */
+
+	/**
+	 * Function which runs in the own thread environment.
+	 * Once a client connects to the server listening socket an new client thread is being created
+	 * From the server point of view the client connection is processed in a new port.
+	 * the server listening port is always ready for new connection requests. 
+	 */
 	public void run()
 	{
 		while(running)
 		{
 			Socket connectionSocket = null;
 			try {
-			    System.out.println( "Listening for Clients" );
+			    
+				// Waiting for clients to connect to the server.
 				connectionSocket = mListenSocket.accept();
-				ClientThread c;
-				c = new ClientThread(connectionSocket);
+				
+				// For every new connection a new client thread is being created
+				ClientThread c = new ClientThread(connectionSocket);
 				c.start();
+				
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				
+				// print the exception only if no termination is requested
 				if(running)
+				{
 					e.printStackTrace();
+				}
 				return;
 			}
 

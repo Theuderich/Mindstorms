@@ -8,23 +8,17 @@ public class TCPServer {
     static int mPort = 10002;
 	
 	public static void main(String[] args) throws IOException {
-		// TODO Auto-generated method stub
+
 	    System.out.println( "Initialization the Server" );
 
 	    RDAHandler.getInstance().startHandler();
 	    RDAServer server = new RDAServer( mPort );
-	    server.startServer();
+	    server.start();
 	    
 	    System.out.println("Press any key to exit ...");
 	    System.in.read();
-	    server.stopServer();
+	    server.terminate();
 	    RDAHandler.getInstance().stopHandler();
-	    
-	    
-	    
-//	    DAPHandler.getInstance().start();
-//	    ConListen server = new ConListen(mPort); 
-//	    server.start();
 	    
 	}
 
