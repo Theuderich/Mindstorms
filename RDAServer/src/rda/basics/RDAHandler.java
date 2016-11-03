@@ -7,6 +7,7 @@ import connection.ClientThread;
 
 public class RDAHandler extends Thread {
 
+	public static final Object LOCK = new Object();
 
 	/*************************************************************************
 	 * Singleton Implementation
@@ -28,6 +29,30 @@ public class RDAHandler extends Thread {
 	    }
 		return RDAHandler.instance;
 	}
+	
+	
+	/*************************************************************************
+	 * Thread control
+	 */
+	
+	private volatile boolean running = true;
+	
+	public void startHandler()
+	{
+		System.out.println("Starting RDA Handler ...");
+		running = true;
+		super.start();
+	}
+	
+	public void stopHandler()
+	{
+		System.out.println("Stoping RDA Handler ...");
+		running = false;
+		synchronized(LOCK){
+			LOCK.notify();
+		}
+	}
+	
 	
 	/*************************************************************************
 	 * Concurrency protection
@@ -192,9 +217,8 @@ public class RDAHandler extends Thread {
 			{
 				// Start Thread
 				System.out.println("Starting Processing");
-				synchronized(this){
-					notify();
-					
+				synchronized(LOCK){
+					LOCK.notify();
 				}
 			}
 		}
@@ -209,16 +233,19 @@ public class RDAHandler extends Thread {
 	  
 	public void run()
 	{
-		while(true)
+		while(running)
 		{
 			try {
-				 synchronized(this){
-					 wait();
+				 synchronized(LOCK){
+					 System.out.println("Handler waiting for data ...");
+					 LOCK.wait();
+					 System.out.println("Handler waiting done");
 				 }
 				 
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				running = false;
 			}
 			
 			System.out.println("Processing is running");
@@ -298,6 +325,7 @@ public class RDAHandler extends Thread {
 	
 				
 				// processing done
+				System.out.println("Processing is done");
 				setHandlerFree();
 				clearRequestBuffer();
 				

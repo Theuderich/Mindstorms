@@ -11,9 +11,16 @@ public class TCPServer {
 		// TODO Auto-generated method stub
 	    System.out.println( "Initialization the Server" );
 
-	    RDAHandler.getInstance().start();
+	    RDAHandler.getInstance().startHandler();
 	    RDAServer server = new RDAServer( mPort );
-	    server.start();
+	    server.startServer();
+	    
+	    System.out.println("Press any key to exit ...");
+	    System.in.read();
+	    server.stopServer();
+	    RDAHandler.getInstance().stopHandler();
+	    
+	    
 	    
 //	    DAPHandler.getInstance().start();
 //	    ConListen server = new ConListen(mPort); 
