@@ -17,6 +17,7 @@ import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.SensorMode;
 import lejos.utility.Delay;
 import rda.basics.RDAHandler;
+import rda.basics.*;
 
 //jrun -jar HelloWorld.jar
 
@@ -29,35 +30,41 @@ public class HelloWorld {
 	
 	public static void main(String[] args) throws IOException {
 
+	    // first initializes the RDA Item Management
+	    RDAItemList.getInstance().init( 199 );
 
 	    RDAHandler.getInstance().start();
 	    RDAServer server = new RDAServer( mPort );
 	    server.start();
-		
-		
-		EV3ColorSensor colorSensor = new EV3ColorSensor(SensorPort.S1);
-		final SensorMode colorRGBSensor = colorSensor.getRGBMode();
-		int sampleSize = colorRGBSensor.sampleSize();            
-		float[] sample = new float[sampleSize];
 
 		// TODO Auto-generated method stub
 		System.out.println("Starting ...");
 		Delay.msDelay(100);
 
+	    Button.waitForAnyPress();
+	    server.terminate();
+	    RDAHandler.getInstance().terminate();
+	    
+//		EV3ColorSensor colorSensor = new EV3ColorSensor(SensorPort.S1);
+//		final SensorMode colorRGBSensor = colorSensor.getRGBMode();
+//		int sampleSize = colorRGBSensor.sampleSize();            
+//		float[] sample = new float[sampleSize];
+
+
 		
-		Motor.A.setSpeed(720);// 2 RPM
-		Motor.B.setSpeed(720);
-		Motor.A.forward();
-		Motor.B.forward();
-		System.out.println("Running ...");
-		Delay.msDelay(500);
-		
-		System.out.println("Stopping ...");
-		Delay.msDelay(100);
-		Motor.A.stop();
-		Motor.B.stop();
-		
-		Delay.msDelay(100);
+//		Motor.A.setSpeed(720);// 2 RPM
+//		Motor.B.setSpeed(720);
+//		Motor.A.forward();
+//		Motor.B.forward();
+//		System.out.println("Running ...");
+//		Delay.msDelay(500);
+//		
+//		System.out.println("Stopping ...");
+//		Delay.msDelay(100);
+//		Motor.A.stop();
+//		Motor.B.stop();
+//		
+//		Delay.msDelay(100);
 		
 	}
 

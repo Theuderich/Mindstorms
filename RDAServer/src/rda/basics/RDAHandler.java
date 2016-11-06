@@ -237,56 +237,58 @@ public class RDAHandler extends Thread {
 					int destinationId = clientRef.request.getWord(1);
 					int payloadSize = clientRef.request.getWord(2);
 					
-					int messageId = clientRef.request.getWord(3);
-					int commandId = ( messageId >> 8 ) & 0xFF;
-					int commandLength = ( messageId ) & 0xFF;
+//					int commandId = clientRef.request.getCommandCode();
+//					int commandLength = clientRef.request.getCommandLength();
 					
 					clientRef.reply.setWord(0, packetId);
 					clientRef.reply.setWord(1, destinationId);
 					clientRef.reply.setWord(2, payloadSize & 0xFE00);
 					
-					int usedPayload = 0;
-					if( commandId == 1 )
-					{
-						
-						// Detect
-						clientRef.reply.setWord(3, 0x0104);
-						clientRef.reply.setWord(4, 0x00C7);	//103 = SCP = 0x0067
-						clientRef.reply.setWord(5, 0x0000);
-						clientRef.reply.setWord(6, 0x0000);
-						clientRef.reply.setWord(7, 0x0000);
-						
-						usedPayload = 5;
-						
-					}
-					else if( commandId == 2 )
-					{
-						
-						// Identify Client
-						String tmp = "";
-						for( int i=0; i<commandLength; i++ )
-						{
-							tmp += (char)((clientRef.request.getWord(4+i) >> 8 ) & 0xFF);
-							tmp += (char)((clientRef.request.getWord(4+i) ) & 0xFF);
-						}
-						System.out.println(tmp);
-						
-						clientRef.reply.setWord(3, 0x0201);
-						clientRef.reply.setWord(4, 0x0001);
-						
-						usedPayload = 2;
-					}
-					else if( commandId == 64 )
-					{
-						// Read Item
-						clientRef.reply.setWord(3, ( commandId << 8 ) | 0x2);
-						clientRef.reply.setWord(4, 0xDEAD);
-						clientRef.reply.setWord(5, 0xBEAF);
-						
-						usedPayload = 3;
-						
-					}
-					
+					RDAItemList.getInstance().processRequest(clientRef.request, clientRef.reply);
+
+//					int usedPayload = 0;
+//					if( commandId == 1 )
+//					{
+//						
+//						// Detect
+//						clientRef.reply.setWord(3, 0x0104);
+//						clientRef.reply.setWord(4, 0x00C7);	//103 = SCP = 0x0067
+//						clientRef.reply.setWord(5, 0x0000);
+//						clientRef.reply.setWord(6, 0x0000);
+//						clientRef.reply.setWord(7, 0x0000);
+//						
+//						usedPayload = 5;
+//						
+//					}
+//					else if( commandId == 2 )
+//					{
+//						
+//						// Identify Client
+//						String tmp = "";
+//						for( int i=0; i<commandLength; i++ )
+//						{
+//							tmp += (char)((clientRef.request.getWord(4+i) >> 8 ) & 0xFF);
+//							tmp += (char)((clientRef.request.getWord(4+i) ) & 0xFF);
+//						}
+//						System.out.println(tmp);
+//						
+//						clientRef.reply.setWord(3, 0x0201);
+//						clientRef.reply.setWord(4, 0x0001);
+//						
+//						usedPayload = 2;
+//					}
+//					else if( commandId == 64 )
+//					{
+//						// Read Item
+//						clientRef.reply.setWord(3, ( commandId << 8 ) | 0x2);
+//						clientRef.reply.setWord(4, 0xDEAD);
+//						clientRef.reply.setWord(5, 0xBEAF);
+//						
+//						usedPayload = 3;
+//						
+//					}
+//					
+					int usedPayload = clientRef.reply.getCommandLength() + 1;
 					clientRef.reply.setWord(2, (payloadSize & 0xFE00) + usedPayload);
 					clientRef.reply.attachReplyChecksum();
 					

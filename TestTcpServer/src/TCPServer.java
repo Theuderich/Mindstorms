@@ -2,6 +2,7 @@ import java.io.IOException;
 
 import connection.RDAServer;
 import rda.basics.RDAHandler;
+import rda.basics.RDAItemList;
 
 public class TCPServer {
 
@@ -11,6 +12,10 @@ public class TCPServer {
 
 	    System.out.println( "Initialization the Server" );
 
+	    // first initializes the RDA Item Management
+	    RDAItemList.getInstance().init( 199 );
+	    
+	    
 	    RDAHandler.getInstance().start();
 	    RDAServer server = new RDAServer( mPort );
 	    server.start();
