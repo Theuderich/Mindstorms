@@ -9,6 +9,7 @@ import java.net.Socket;
 
 import javax.sound.sampled.Port;
 
+import cmp.CmpManager;
 import connection.RDAServer;
 import lejos.hardware.Button;
 import lejos.hardware.motor.Motor;
@@ -37,11 +38,16 @@ public class HelloWorld {
 	    RDAServer server = new RDAServer( mPort );
 	    server.start();
 
+	    CmpManager.getInstance();
+	    SensorMon thread = new SensorMon();
+	    CmpManager.getInstance().runAll();
+	    
 		// TODO Auto-generated method stub
 		System.out.println("Starting ...");
 		Delay.msDelay(100);
-
 	    Button.waitForAnyPress();
+
+	    CmpManager.getInstance().terminateAll();
 	    server.terminate();
 	    RDAHandler.getInstance().terminate();
 	    
