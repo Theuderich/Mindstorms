@@ -7,6 +7,7 @@ public abstract class RDAItem {
 	public RDAItem(RDAType t)
 	{
 		type = t;
+		RDAItemList.getInstance().recordItem( this );
 	}
 	
 	public void processRequest(RDABuffer request, RDABuffer reply)

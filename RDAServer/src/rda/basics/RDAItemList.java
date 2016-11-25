@@ -62,13 +62,11 @@ public class RDAItemList {
 		s.set("xxxx");
 		itemList.add(s);
 		
-		Item32 val = new Item32(0x1234);
-		val.set(0xDEADBEEF);
-		itemList.add(val);
-
-		val = new Item32(0x1235);
-		val.set(0x1CEC001);
-		itemList.add(val);
+	}
+	
+	public void recordItem( RDAItem item)
+	{
+		itemList.add(item);
 	}
 	
 	/*************************************************************************
