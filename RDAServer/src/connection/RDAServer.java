@@ -3,6 +3,10 @@ package connection;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+
+import rda.basics.RDAItem;
 
 
 public class RDAServer extends Thread {
@@ -13,6 +17,7 @@ public class RDAServer extends Thread {
 
 	private ServerSocket mListenSocket;
 	private int mPort;
+	private List<ClientThread> allClients;
 
 	/*************************************************************************
 	 * Construction of server instance
@@ -25,6 +30,7 @@ public class RDAServer extends Thread {
 	public RDAServer(int port)
 	{
 		mPort = port;
+		allClients = new ArrayList<ClientThread>();
 	}
 
 	/*************************************************************************
@@ -59,18 +65,26 @@ public class RDAServer extends Thread {
 	 * Request the TCP Server thread to terminate.
 	 * The listening socked is being closed which raises an exception
 	 * In cases where the running variable is set to false this exception will not be processed 
+	 * Finally, all started client threads get a termination request
 	 */
 	public void terminate()
 	{
 
 		running = false;
-		
+
 		try {
 			mListenSocket.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		for(ClientThread c : allClients)
+		{
+			c.terminate();
+		}
+		
+		
 	}
 	
 	/*************************************************************************
@@ -96,6 +110,7 @@ public class RDAServer extends Thread {
 				// For every new connection a new client thread is being created
 				ClientThread c = new ClientThread(connectionSocket);
 				c.start();
+				allClients.add(c);
 				
 			} catch (IOException e) {
 				

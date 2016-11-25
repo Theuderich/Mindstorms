@@ -4,6 +4,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.ServerSocket;
 import java.net.Socket;
 
 import rda.basics.RDABuffer;
@@ -38,6 +39,42 @@ public class ClientThread extends Thread {
 	private InputStream mInputStream;
 	private OutputStream mOutputStream;
 	private BufferedOutputStream mBufferedOutputStream;
+	
+	/*************************************************************************
+	 * Thread control
+	 */
+
+	/**
+	 * boolean variable to signal the run function a termination request
+	 */
+	private volatile boolean running = true;
+
+	/**
+	 * Method to start the Client thread
+	 * implemented in run()
+	 */
+	@Override
+	public void start()
+	{
+		running = true;
+		super.start();
+	}
+	
+	/**
+	 * Request the Client thread to terminate.
+	 * The client connection socket is closed and
+	 * the currently request is processed till the end
+	 */
+	public void terminate()
+	{
+		try {
+			mSocket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		running = false;
+	}
 	
 	/**************************************************************************
      * read and reply buffer allocated individually for each client instance
@@ -97,7 +134,7 @@ public class ClientThread extends Thread {
 	 */
 	public void run()
 	{
-		while(mSocket.isConnected() && !mSocket.isClosed() && mSocket.isBound() )
+		while(mSocket.isConnected() && !mSocket.isClosed() && mSocket.isBound() && running )
 		{
 			
 			try {
@@ -129,7 +166,12 @@ public class ClientThread extends Thread {
  	            
 			} catch (IOException | InterruptedException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+
+				// print the exception only if no termination is requested
+				if(running)
+				{
+					e.printStackTrace();
+				}
 			}
 
 		}
