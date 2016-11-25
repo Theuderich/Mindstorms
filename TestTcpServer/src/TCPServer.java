@@ -1,5 +1,6 @@
 import java.io.IOException;
 
+import cmp.CmpManager;
 import connection.RDAServer;
 import rda.Items.Item32;
 import rda.basics.RDAHandler;
@@ -20,28 +21,20 @@ public class TCPServer {
 	    RDAServer server = new RDAServer( mPort );
 	    server.start();
 
-		Item32 val1 = new Item32(0x1234);
-		Item32 val2 = new Item32(0x1235);
+	    CmpManager.getInstance();
+	    TestThread thread = new TestThread();
+	    CmpManager.getInstance().runAll();
 
-		val1.set(0xDEADBEEF);
-		val2.set(0x1CEC001);
 
-		while( val2.get() == 0x1CEC001 )
-		{
-			System.out.println("Waiting");
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
 		
 
 	    
 	    
 	    System.out.println("Press any key to exit ...");
 	    System.in.read();
+	    
+	    
+	    CmpManager.getInstance().terminateAll();
 	    server.terminate();
 	    RDAHandler.getInstance().terminate();
 	    

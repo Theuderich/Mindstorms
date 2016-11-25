@@ -97,7 +97,7 @@ public class RDAItemList {
 		case RDABuffer.CMDID_WRITEITEM:	
 			int itemId = request.getCommandPayloadWord(0) << 16;
 			itemId += request.getCommandPayloadWord(1);
-
+//			System.out.println(String.format("Item: %d", itemId));
 			for( RDAItem item: itemList)
 			{
 				if( item.isItemId( itemId ))
