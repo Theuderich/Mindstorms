@@ -27,6 +27,7 @@ public class RDABuffer {
 	public final static int CMDID_IDENTIFY_CLIENT = 2;
 	public final static int CMDID_READITEM = 64;
 	public final static int CMDID_READITEM_DESTRUCTIVE = 65;
+	public final static int CMDID_WRITEITEM = 80;
 			
 	/*************************************************************************
 	 * private buffer variable

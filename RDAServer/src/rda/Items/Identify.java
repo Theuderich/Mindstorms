@@ -16,10 +16,10 @@ public class Identify extends RDAItem {
 	
 	public void processRequest(RDABuffer request, RDABuffer reply)
 	{
-//		System.out.println("Prepare Identify");
-
 		// Identify Client
 		int commandLength = request.getCommandLength();
+		
+		client = "";
 		
 		for( int i=0; i<commandLength*2; i++ )
 		{

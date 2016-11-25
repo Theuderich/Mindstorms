@@ -6,6 +6,7 @@ import java.util.List;
 import rda.Items.Detect;
 import rda.Items.Identify;
 import rda.Items.Item32;
+import rda.Items.ItemStr;
 
 public class RDAItemList {
 
@@ -40,8 +41,33 @@ public class RDAItemList {
 	{
 		modelId = new Detect( modelId_ );
 		clientId = new Identify();
+		
+		// product
+		ItemStr s = new ItemStr(1); 
+		s.set("MINDSTORM");	
+		itemList.add(s);
+
+		// hw version
+		s = new ItemStr(2);
+		s.set("01.00");	
+		itemList.add(s);
+		
+		// sw version
+		s = new ItemStr(5);
+		s.set("01.00");
+		itemList.add(s);
+		
+		// sw revision
+		s = new ItemStr(6);
+		s.set("xxxx");
+		itemList.add(s);
+		
 		Item32 val = new Item32(0x1234);
 		val.set(0xDEADBEEF);
+		itemList.add(val);
+
+		val = new Item32(0x1235);
+		val.set(0x1CEC001);
 		itemList.add(val);
 	}
 	
@@ -56,7 +82,7 @@ public class RDAItemList {
 	public void processRequest(RDABuffer request, RDABuffer reply)
 	{
 		int commandId = request.getCommandCode();
-//		System.out.println(String.format("Processing CommandID: %d", commandId));
+
 		
 		switch (commandId)
 		{
@@ -69,24 +95,22 @@ public class RDAItemList {
 			break;
 			
 		case RDABuffer.CMDID_READITEM:
+		case RDABuffer.CMDID_READITEM_DESTRUCTIVE:
+		case RDABuffer.CMDID_WRITEITEM:	
 			int itemId = request.getCommandPayloadWord(0) << 16;
 			itemId += request.getCommandPayloadWord(1);
-//			System.out.println(String.format("ItemID: %d", itemId));
+
 			for( RDAItem item: itemList)
 			{
-				if( item.isItemId( itemId ) || true)
+				if( item.isItemId( itemId ))
 				{
 					item.processRequest(request, reply);
 					break;
 				}
 			}
-//			System.out.println(String.format("ItemID: %d not found", itemId));
+
 			break;
 		
-		case RDABuffer.CMDID_READITEM_DESTRUCTIVE:
-//			System.out.println(String.format("Unhandled CommandID: %d", commandId));
-			break;
-			
 		default:
 			System.out.println(String.format("Unknown CommandID: %d", commandId));
 			// TODO Reply unknown Command Code

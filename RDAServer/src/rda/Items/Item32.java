@@ -28,10 +28,30 @@ public class Item32 extends RDAItem {
 	
 	public void processRequest(RDABuffer request, RDABuffer reply)
 	{
-//		System.out.println("Prepare Item");
-		reply.setMessageId(request.getCommandCode(), (byte) 2);
-		reply.setMessagePayloadWord(0, (value>>16) & 0xFFFF );
-		reply.setMessagePayloadWord(1, value & 0xFFFF );
+
+		int commandId = request.getCommandCode();
+		switch (commandId )
+		{
+		case RDABuffer.CMDID_READITEM:
+		case RDABuffer.CMDID_READITEM_DESTRUCTIVE:
+			reply.setMessageId(request.getCommandCode(), (byte) 2);
+			reply.setMessagePayloadWord(0, (value>>16) & 0xFFFF );
+			reply.setMessagePayloadWord(1, value & 0xFFFF );
+			break;
+			
+		case RDABuffer.CMDID_WRITEITEM:
+			
+			int itemValue = request.getCommandPayloadWord(2) << 16;
+			itemValue += request.getCommandPayloadWord(3);
+			
+			set(itemValue);
+
+			reply.setMessageId(request.getCommandCode(), (byte) 1);
+			reply.setMessagePayloadWord(0, 2 );
+			break;
+		
+		}
+		
 		
 	}
 
