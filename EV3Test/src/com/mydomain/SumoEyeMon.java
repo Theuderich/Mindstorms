@@ -22,7 +22,6 @@ public class SumoEyeMon extends CmpBase {
 	@Override
 	public void run()
 	{
-		System.out.println("Started");
 		while ( isRunning() )
 		{
 			

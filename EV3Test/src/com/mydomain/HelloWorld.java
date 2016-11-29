@@ -39,6 +39,7 @@ public class HelloWorld {
 
 	    CmpManager.getInstance();
 	    SumoEyeMon thread = new SumoEyeMon();
+	    AdminDataMon admin = new AdminDataMon();
 	    CmpManager.getInstance().runAll();
 	    
 		// TODO Auto-generated method stub
