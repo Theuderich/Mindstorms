@@ -5,18 +5,17 @@ import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.SumoEyesSensor;
 import rda.Items.Item32;
 
-public class SensorMon extends CmpBase {
+public class SumoEyeMon extends CmpBase {
 
-	Item32 val1 = new Item32(0x1234);
-	Item32 val2 = new Item32(0x1235);
+	Item32 obstacle = new Item32( RdaIds.RDA_SUMOEYE_OBSTACLE );
+	Item32 rawValue = new Item32( RdaIds.RDA_SUMOEYE_RAWVALUE );
+	Item32 isLongRange = new Item32( RdaIds.RDA_SUMOEYE_ISLONGRANGE );
 
 	SumoEyesSensor sensor;
 	
-	SensorMon()
+	SumoEyeMon()
 	{
-		super(0x100);
-		val1.set(0xDEADBEEF);
-		val2.set(0x1CEC001);
+		super(RdaIds.RDA_SUMOEYE_TASK);
 		sensor = new SumoEyesSensor( SensorPort.S2 );
 	}
 	
@@ -26,9 +25,12 @@ public class SensorMon extends CmpBase {
 		System.out.println("Started");
 		while ( isRunning() )
 		{
-//			System.out.println("Run");
-			val1.set( sensor.getObstacle() );
-			val2.set( sensor.getValue());
+			
+			// Monitoring
+			obstacle.set( sensor.getObstacle() );
+			rawValue.set( sensor.getValue());
+			isLongRange.set( sensor.isLongRange() ? 1:0 );
+			
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {

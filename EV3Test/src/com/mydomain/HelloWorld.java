@@ -36,14 +36,14 @@ public class HelloWorld {
 
 	    RDAHandler.getInstance().start();
 	    RDAServer server = new RDAServer( mPort );
-	    server.start();
 
 	    CmpManager.getInstance();
-	    SensorMon thread = new SensorMon();
+	    SumoEyeMon thread = new SumoEyeMon();
 	    CmpManager.getInstance().runAll();
 	    
 		// TODO Auto-generated method stub
 		System.out.println("Starting ...");
+	    server.start();
 		Delay.msDelay(100);
 	    Button.waitForAnyPress();
 
