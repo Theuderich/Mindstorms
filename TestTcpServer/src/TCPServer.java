@@ -21,10 +21,10 @@ public class TCPServer {
 	    RDAServer server = new RDAServer( mPort );
 
 	    CmpManager.getInstance();
-	    TestThread thread = new TestThread();
+//	    TestThread thread = new TestThread();
 	    SumoEyeMon sensor = new SumoEyeMon();
-	    sensor.start();
-//	    CmpManager.getInstance().runAll();
+//	    sensor.start();
+	    CmpManager.getInstance().runAll();
 
 
 	    server.start();

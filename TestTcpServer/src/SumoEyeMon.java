@@ -1,6 +1,8 @@
 
 
 
+import java.util.Random;
+
 import cmp.mgmt.CmpBase;
 import rda.Items.Item32;
 
@@ -9,7 +11,8 @@ public class SumoEyeMon extends CmpBase {
 	Item32 obstacle = new Item32( RdaIds.RDA_SUMOEYE_OBSTACLE );
 	Item32 rawValue = new Item32( RdaIds.RDA_SUMOEYE_RAWVALUE );
 	Item32 isLongRange = new Item32( RdaIds.RDA_SUMOEYE_ISLONGRANGE );
-
+	Random rand = new Random(1);
+	
 	SumoEyeMon()
 	{
 		super(RdaIds.RDA_SUMOEYE_TASK);
@@ -23,7 +26,7 @@ public class SumoEyeMon extends CmpBase {
 			
 			// Monitoring
 			
-			rawValue.set( obstacle.get() );
+			rawValue.set( rand.nextInt() );
 			isLongRange.set( 0 );
 			
 			try {
