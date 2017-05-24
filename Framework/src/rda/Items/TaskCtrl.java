@@ -87,7 +87,7 @@ public class TaskCtrl extends Item32{
 	public void set( int v )
 	{
 		if( setState(CmpState.fromInteger(v)) );
-			task.onStateChangeRequest( state );
+			task.onStateChangeRequest( );
 	}
 
 	

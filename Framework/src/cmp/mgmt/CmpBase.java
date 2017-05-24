@@ -17,14 +17,24 @@ public class CmpBase extends Thread {
 		rdaCtrl.setState( CmpState.IDLE );
 	}
 
-	public void onStateChangeRequest( CmpState newState )
+	public void onStateChangeRequest( )
 	{
 		if( rdaCtrl.getState() == CmpState.STARTING )
 			start();
 		else if( rdaCtrl.getState() == CmpState.SUSPENDED )
-			wait();
+		{
+//			try {
+//				wait();
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+			
+		}
 		else if( rdaCtrl.getState() == CmpState.RESUME )
-			notify();
+		{
+//			notify();
+		}
 	}
 	
 	public void terminate()
