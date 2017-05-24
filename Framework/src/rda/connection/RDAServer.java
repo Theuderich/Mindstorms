@@ -1,4 +1,4 @@
-package connection;
+package rda.connection;
 
 import java.io.IOException;
 import java.net.ServerSocket;

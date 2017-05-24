@@ -2,7 +2,7 @@ package rda.basics;
 
 import java.util.concurrent.Semaphore;
 
-import connection.ClientThread;
+import rda.connection.ClientThread;
 
 
 public class RDAHandler extends Thread {

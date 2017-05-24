@@ -1,4 +1,4 @@
-import cmp.CmpBase;
+import cmp.mgmt.CmpBase;
 import rda.Items.Item32;
 
 public class TestThread extends CmpBase {

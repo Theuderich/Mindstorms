@@ -103,10 +103,15 @@ public class RDAItemList {
 				if( item.isItemId( itemId ))
 				{
 					item.processRequest(request, reply);
-					break;
+					return;
 				}
 			}
 
+			// Item is unknown
+			reply.setMessageId((byte)RDABuffer.APP_ERROR_CMDID, (byte) RDABuffer.APP_ERROR_LENGTH);
+			reply.setMessagePayloadWord(0, RDABuffer.APP_ERROR_UNKNOWN_ITEM );
+
+			
 			break;
 		
 		default:

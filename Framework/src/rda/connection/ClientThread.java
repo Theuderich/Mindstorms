@@ -1,4 +1,4 @@
-package connection;
+package rda.connection;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;

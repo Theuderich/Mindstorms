@@ -30,6 +30,20 @@ public class RDABuffer {
 	public final static int CMDID_WRITEITEM = 80;
 			
 	/*************************************************************************
+	 * Error Code definitions
+	 */
+	
+	public final static int APP_ERROR_CMDID = 255;
+	public final static int APP_ERROR_LENGTH = 1;
+	public final static int APP_ERROR_UNKNOWN_CMD = 0;
+	public final static int APP_ERROR_UNKNOWN_ITEM = 1;
+	public final static int APP_ERROR_INVALID_DATA = 2;
+	public final static int APP_ERROR_UNSUPPORTED = 3;
+	public final static int APP_ERROR_BUSY = 4;
+	public final static int APP_ERROR_DATA_REJECTED = 5;
+			
+	
+	/*************************************************************************
 	 * private buffer variable
 	 */
 	public final int max = RDAHandler.maxRequestBufferSizeBytes;

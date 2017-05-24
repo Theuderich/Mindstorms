@@ -1,10 +1,10 @@
 import java.io.IOException;
 
-import cmp.CmpManager;
-import connection.RDAServer;
+import cmp.mgmt.CmpManager;
 import rda.Items.Item32;
 import rda.basics.RDAHandler;
 import rda.basics.RDAItemList;
+import rda.connection.RDAServer;
 
 public class TCPServer {
 
@@ -19,17 +19,16 @@ public class TCPServer {
 	    
 	    RDAHandler.getInstance().start();
 	    RDAServer server = new RDAServer( mPort );
-	    server.start();
 
 	    CmpManager.getInstance();
 	    TestThread thread = new TestThread();
-	    CmpManager.getInstance().runAll();
+	    SumoEyeMon sensor = new SumoEyeMon();
+	    sensor.start();
+//	    CmpManager.getInstance().runAll();
 
 
-		
+	    server.start();
 
-	    
-	    
 	    System.out.println("Press any key to exit ...");
 	    System.in.read();
 	    

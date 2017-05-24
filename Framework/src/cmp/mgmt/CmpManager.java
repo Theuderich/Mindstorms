@@ -1,4 +1,4 @@
-package cmp;
+package cmp.mgmt;
 
 import java.util.ArrayList;
 import java.util.List;
