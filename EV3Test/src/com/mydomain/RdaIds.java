@@ -9,4 +9,6 @@ public class RdaIds {
 	public static final int RDA_ADMIN_TASK = 200;
 	public static final int RDA_ADMIN_BATTERY = 201;
 	
+	public static final int RDA_DRIVING_TASK = 300;
+	
 }
