@@ -9,6 +9,8 @@ import java.net.Socket;
 
 import javax.sound.sampled.Port;
 
+import com.pkg.move.Driver;
+
 import cmp.CmpManager;
 import connection.RDAServer;
 import lejos.hardware.Button;
@@ -31,6 +33,10 @@ public class HelloWorld {
 	
 	public static void main(String[] args) throws IOException {
 
+		// initialization of Driver Class
+		Driver.getInstance();
+		
+		
 	    // first initializes the RDA Item Management
 	    RDAItemList.getInstance().init( 199 );
 
