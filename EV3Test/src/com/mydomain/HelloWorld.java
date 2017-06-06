@@ -43,10 +43,16 @@ public class HelloWorld {
 	    RDAHandler.getInstance().start();
 	    RDAServer server = new RDAServer( mPort );
 
+		Driver.getInstance().setSpeed( 400 );
+		Driver.getInstance().setAcceleration( 800 );
+		Driver.getInstance().setForward();
+	    
+	    
 	    CmpManager.getInstance();
 	    SumoEyeMon thread = new SumoEyeMon();
 	    AdminDataMon admin = new AdminDataMon();
-	    Driving drive = new Driving();
+//	    Driving drive = new Driving();
+	    ColorSensing color = new ColorSensing();
 	    CmpManager.getInstance().runAll();
 	    
 		// TODO Auto-generated method stub

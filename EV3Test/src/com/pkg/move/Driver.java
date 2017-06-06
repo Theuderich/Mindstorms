@@ -90,4 +90,10 @@ public class Driver {
 //		left.waitComplete();
 //		right.waitComplete();
 	}
+	
+	public void stop()
+	{
+		left.flt(true);
+		right.flt(true);
+	}
 }

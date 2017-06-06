@@ -13,6 +13,9 @@ public class RdaIds {
 	public static final int RDA_DRIVING_MAX_SPEED_LEFT = 301;
 	public static final int RDA_DRIVING_MAX_SPEED_RIGHT = 302;
 	
+	public static final int RDA_COLOR_TASK = 400;
+	public static final int RDA_COLOR_SENSOR = 401;
+	
 	
 	
 }
