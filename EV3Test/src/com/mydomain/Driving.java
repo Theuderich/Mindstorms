@@ -2,7 +2,7 @@ package com.mydomain;
 
 import com.pkg.move.Driver;
 
-import cmp.CmpBase;
+import cmp.mgmt.CmpBase;
 import lejos.hardware.motor.Motor;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.SumoEyesSensor;

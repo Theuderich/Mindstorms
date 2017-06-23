@@ -11,8 +11,7 @@ import javax.sound.sampled.Port;
 
 import com.pkg.move.Driver;
 
-import cmp.CmpManager;
-import connection.RDAServer;
+import cmp.mgmt.CmpManager;
 import lejos.hardware.Button;
 import lejos.hardware.motor.Motor;
 import lejos.hardware.port.SensorPort;
@@ -20,6 +19,7 @@ import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.SensorMode;
 import lejos.utility.Delay;
 import rda.basics.RDAHandler;
+import rda.connection.RDAServer;
 import rda.basics.*;
 
 //jrun -jar HelloWorld.jar

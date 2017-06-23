@@ -1,6 +1,7 @@
 package com.mydomain;
 
-import cmp.CmpBase;
+
+import cmp.mgmt.CmpBase;
 import lejos.hardware.Battery;
 import rda.Items.Item32;
 
